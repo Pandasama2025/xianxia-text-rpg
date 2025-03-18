@@ -8,6 +8,7 @@ import storyData from './data/story.json';
 
 function App() {
   const [currentChapter, setCurrentChapter] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [playerStatus, setPlayerStatus] = useState({
     '修为': 0,
     '灵力': 100,
@@ -18,7 +19,19 @@ function App() {
   useEffect(() => {
     // 初始化时加载第一个章节
     setCurrentChapter(storyData.chapters[0]);
+    setIsLoading(false);
   }, []);
+  
+  // 重置游戏状态到初始值
+  const handleResetGame = () => {
+    setPlayerStatus({
+      '修为': 0,
+      '灵力': 100,
+      '因果值': 0,
+      '道心': 50
+    });
+    setCurrentChapter(storyData.chapters[0]);
+  };
   
   // 处理选项选择
   const handleOptionSelect = (option) => {
@@ -32,8 +45,21 @@ function App() {
           // 如果状态已存在，则累加值；否则新建状态
           if (newStatus.hasOwnProperty(stat)) {
             newStatus[stat] += value;
+            
+            // 验证属性值不低于0
+            if (newStatus[stat] < 0) {
+              newStatus[stat] = 0;
+            }
+            
+            // 对于特定属性，确保不超过最大值
+            if (stat === '灵力' && newStatus[stat] > 100) {
+              newStatus[stat] = 100;
+            }
+            if (stat === '道心' && newStatus[stat] > 100) {
+              newStatus[stat] = 100;
+            }
           } else {
-            newStatus[stat] = value;
+            newStatus[stat] = Math.max(0, value); // 确保新属性不会是负值
           }
         });
         
@@ -55,6 +81,8 @@ function App() {
 
   // 处理游戏加载
   const handleLoadGame = (chapterId, loadedPlayerStatus) => {
+    setIsLoading(true);
+    
     // 加载玩家状态
     setPlayerStatus(loadedPlayerStatus);
     
@@ -68,6 +96,8 @@ function App() {
     } else {
       console.error('加载游戏时找不到章节:', chapterId);
     }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -76,20 +106,34 @@ function App() {
         <h1>仙侠文字RPG</h1>
       </header>
       <main>
-        <PlayerStatus status={playerStatus} />
-        {currentChapter && (
-          <SaveGameManager 
-            currentChapter={currentChapter}
-            playerStatus={playerStatus}
-            onLoad={handleLoadGame}
-          />
-        )}
-        <StoryDisplay chapter={currentChapter} />
-        {currentChapter && (
-          <Options 
-            options={currentChapter.options} 
-            onSelect={handleOptionSelect}
-          />
+        {isLoading ? (
+          <div className="loading-container">加载中...</div>
+        ) : (
+          <>
+            <div className="game-controls">
+              <PlayerStatus status={playerStatus} />
+              {currentChapter && (
+                <SaveGameManager 
+                  currentChapter={currentChapter}
+                  playerStatus={playerStatus}
+                  onLoad={handleLoadGame}
+                />
+              )}
+              <button 
+                className="reset-button" 
+                onClick={handleResetGame}
+              >
+                重新开始
+              </button>
+            </div>
+            <StoryDisplay chapter={currentChapter} />
+            {currentChapter && (
+              <Options 
+                options={currentChapter.options} 
+                onSelect={handleOptionSelect}
+              />
+            )}
+          </>
         )}
       </main>
     </div>
