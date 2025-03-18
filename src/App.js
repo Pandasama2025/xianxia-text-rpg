@@ -4,6 +4,8 @@ import StoryDisplay from './components/StoryDisplay';
 import Options from './components/Options';
 import PlayerStatus from './components/PlayerStatus';
 import SaveGameManager from './components/SaveGameManager';
+import SoundControls from './components/SoundControls';
+import soundManager from './audio/soundManager';
 import storyData from './data/story.json';
 
 function App() {
@@ -20,6 +22,17 @@ function App() {
     // 初始化时加载第一个章节
     setCurrentChapter(storyData.chapters[0]);
     setIsLoading(false);
+    
+    // 初始化音频
+    soundManager.init();
+    
+    // 播放背景音乐
+    soundManager.playBackgroundMusic('main');
+    
+    // 清理函数
+    return () => {
+      soundManager.stopBackgroundMusic();
+    };
   }, []);
   
   // 重置游戏状态到初始值
@@ -31,12 +44,21 @@ function App() {
       '道心': 50
     });
     setCurrentChapter(storyData.chapters[0]);
+    
+    // 播放重置音效
+    soundManager.playUISound('select');
   };
   
   // 处理选项选择
   const handleOptionSelect = (option) => {
+    // 播放选择音效
+    soundManager.playUISound('click');
+    
     // 应用选项效果到玩家状态
     if (option.effects && Object.keys(option.effects).length > 0) {
+      // 检查是否有修为提升
+      const hadCultivationImprovement = option.effects['修为'] && option.effects['修为'] > 0;
+      
       setPlayerStatus(prevStatus => {
         const newStatus = { ...prevStatus };
         
@@ -65,6 +87,11 @@ function App() {
         
         return newStatus;
       });
+      
+      // 如果修为提升，播放特殊音效
+      if (hadCultivationImprovement) {
+        soundManager.playEffectSound('levelUp');
+      }
     }
     
     // 查找下一个章节
@@ -74,6 +101,13 @@ function App() {
     
     if (nextChapter) {
       setCurrentChapter(nextChapter);
+      
+      // 根据章节类型播放不同背景音乐
+      if (nextChapter.id === 'chapter2') {
+        soundManager.playBackgroundMusic('meditation');
+      } else if (nextChapter.id === 'chapter6') {
+        soundManager.playBackgroundMusic('battle');
+      }
     } else {
       console.error('找不到章节:', option.nextId);
     }
@@ -82,6 +116,9 @@ function App() {
   // 处理游戏加载
   const handleLoadGame = (chapterId, loadedPlayerStatus) => {
     setIsLoading(true);
+    
+    // 播放加载音效
+    soundManager.playUISound('select');
     
     // 加载玩家状态
     setPlayerStatus(loadedPlayerStatus);
@@ -93,6 +130,15 @@ function App() {
     
     if (chapter) {
       setCurrentChapter(chapter);
+      
+      // 根据章节类型播放不同背景音乐
+      if (chapter.id === 'chapter2') {
+        soundManager.playBackgroundMusic('meditation');
+      } else if (chapter.id === 'chapter6') {
+        soundManager.playBackgroundMusic('battle');
+      } else {
+        soundManager.playBackgroundMusic('main');
+      }
     } else {
       console.error('加载游戏时找不到章节:', chapterId);
     }
@@ -104,6 +150,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1>仙侠文字RPG</h1>
+        <SoundControls />
       </header>
       <main>
         {isLoading ? (

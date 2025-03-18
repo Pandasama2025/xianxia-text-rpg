@@ -8,6 +8,8 @@
 - 多样化选择影响游戏走向
 - 角色属性系统（修为、灵力、因果值、道心）
 - 存档和读档功能
+- 音效系统（背景音乐和特效音）
+- 响应式设计，支持移动设备
 
 ## 技术栈
 
@@ -48,12 +50,19 @@
 ```
 xianxia-rpg/
 ├── public/                      # 静态资源
+│   └── sounds/                  # 音效文件
+│       ├── background/          # 背景音乐
+│       ├── ui/                  # 界面音效
+│       └── effects/             # 游戏效果音效
 ├── src/                         # 源代码
 │   ├── components/              # React组件
 │   │   ├── StoryDisplay.js      # 剧情显示组件
 │   │   ├── Options.js           # 选项选择组件
 │   │   ├── PlayerStatus.js      # 玩家状态组件
-│   │   └── SaveGameManager.js   # 存档管理组件
+│   │   ├── SaveGameManager.js   # 存档管理组件
+│   │   └── SoundControls.js     # 音效控制组件
+│   ├── audio/                   # 音效管理
+│   │   └── soundManager.js      # 音效管理模块
 │   ├── data/                    # 游戏数据
 │   │   └── story.json           # 剧情数据
 │   ├── firebase/                # Firebase配置
@@ -73,6 +82,7 @@ xianxia-rpg/
 4. 使用保存功能记录游戏进度
 5. 使用加载功能恢复之前的游戏状态
 6. 如需重新开始，点击"重新开始"按钮
+7. 使用音量控制调整游戏音效
 
 ## 玩家属性说明
 
@@ -88,7 +98,8 @@ xianxia-rpg/
 - [x] 选项选择功能
 - [x] 状态管理系统
 - [x] 存档与读档功能
-- [ ] 音效集成
+- [x] 响应式设计
+- [x] 音效集成
 - [ ] 高级功能（战斗系统、门派选择等）
 
 ## 贡献指南

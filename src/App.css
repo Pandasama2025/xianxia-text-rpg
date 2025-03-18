@@ -147,3 +147,79 @@ main {
     transform: rotate(360deg);
   }
 }
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .App {
+    max-width: 100%;
+    padding: 0 10px;
+  }
+  
+  .App-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .story-display {
+    padding: 15px;
+  }
+  
+  .story-display p {
+    font-size: 1rem;
+  }
+  
+  .option-button {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .status-bar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+  }
+  
+  .game-controls {
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .game-controls button {
+    flex: 1;
+    min-width: 100px;
+    margin: 5px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .App-header {
+    padding: 10px;
+  }
+  
+  .App-header h1 {
+    font-size: 1.2rem;
+  }
+  
+  .story-display h2 {
+    font-size: 1.2rem;
+  }
+  
+  .story-display p {
+    font-size: 0.9rem;
+  }
+  
+  .option-button {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+  
+  .status-bar {
+    padding: 8px;
+    font-size: 0.8rem;
+  }
+  
+  .game-controls button {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+}
