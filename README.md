@@ -47,21 +47,22 @@
 
 ```
 xianxia-rpg/
-├── public/                  # 静态资源
-├── src/                     # 源代码
-│   ├── components/          # React组件
-│   │   ├── StoryDisplay.js  # 剧情显示组件
-│   │   ├── Options.js       # 选项选择组件
-│   │   └── PlayerStatus.js  # 玩家状态组件
-│   ├── data/                # 游戏数据
-│   │   └── story.json       # 剧情数据
-│   ├── firebase/            # Firebase配置
-│   │   └── config.js        # Firebase初始化
-│   ├── store/               # 状态管理
-│   ├── App.js               # 主应用组件
-│   └── index.js             # 入口文件
-├── package.json             # 项目依赖
-└── README.md                # 项目说明
+├── public/                      # 静态资源
+├── src/                         # 源代码
+│   ├── components/              # React组件
+│   │   ├── StoryDisplay.js      # 剧情显示组件
+│   │   ├── Options.js           # 选项选择组件
+│   │   ├── PlayerStatus.js      # 玩家状态组件
+│   │   └── SaveGameManager.js   # 存档管理组件
+│   ├── data/                    # 游戏数据
+│   │   └── story.json           # 剧情数据
+│   ├── firebase/                # Firebase配置
+│   │   └── config.js            # Firebase初始化
+│   ├── store/                   # 状态管理
+│   ├── App.js                   # 主应用组件
+│   └── index.js                 # 入口文件
+├── package.json                 # 项目依赖
+└── README.md                    # 项目说明
 ```
 
 ## 游戏玩法
@@ -69,7 +70,8 @@ xianxia-rpg/
 1. 阅读剧情文本
 2. 选择不同的选项推进故事
 3. 管理角色属性（修为、灵力、因果值、道心）
-4. 根据选择体验不同的结局
+4. 使用保存功能记录游戏进度
+5. 使用加载功能恢复之前的游戏状态
 
 ## 玩家属性说明
 
@@ -84,7 +86,7 @@ xianxia-rpg/
 - [x] 基础剧情展示
 - [x] 选项选择功能
 - [x] 状态管理系统
-- [ ] 存档与读档功能
+- [x] 存档与读档功能
 - [ ] 音效集成
 - [ ] 高级功能（战斗系统、门派选择等）
 

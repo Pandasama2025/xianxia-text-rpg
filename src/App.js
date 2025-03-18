@@ -3,6 +3,7 @@ import './App.css';
 import StoryDisplay from './components/StoryDisplay';
 import Options from './components/Options';
 import PlayerStatus from './components/PlayerStatus';
+import SaveGameManager from './components/SaveGameManager';
 import storyData from './data/story.json';
 
 function App() {
@@ -52,6 +53,23 @@ function App() {
     }
   };
 
+  // 处理游戏加载
+  const handleLoadGame = (chapterId, loadedPlayerStatus) => {
+    // 加载玩家状态
+    setPlayerStatus(loadedPlayerStatus);
+    
+    // 加载章节
+    const chapter = storyData.chapters.find(
+      chapter => chapter.id === chapterId
+    );
+    
+    if (chapter) {
+      setCurrentChapter(chapter);
+    } else {
+      console.error('加载游戏时找不到章节:', chapterId);
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -59,6 +77,13 @@ function App() {
       </header>
       <main>
         <PlayerStatus status={playerStatus} />
+        {currentChapter && (
+          <SaveGameManager 
+            currentChapter={currentChapter}
+            playerStatus={playerStatus}
+            onLoad={handleLoadGame}
+          />
+        )}
         <StoryDisplay chapter={currentChapter} />
         {currentChapter && (
           <Options 
