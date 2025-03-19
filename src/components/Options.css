@@ -1,28 +1,181 @@
 .options-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-width: 600px;
-  margin: 24px auto;
+  align-items: center;
+  margin: 20px auto;
+  max-width: 800px;
+}
+
+.option-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.option-disabled {
+  opacity: 0.8;
 }
 
 .option-button {
-  background-color: #4a5568;
+  background-color: #8b4513;
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 12px 16px;
+  border-radius: 5px;
+  padding: 12px 20px;
+  width: 80%;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  text-align: left;
+  transition: all 0.3s;
+  position: relative;
 }
 
 .option-button:hover {
-  background-color: #2d3748;
+  background-color: #a0522d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.option-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+.option-button.disabled-button {
+  background-color: #b5b5b5;
+  cursor: not-allowed;
+}
+
+.option-button.disabled-button:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.option-condition-indicator {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ffdd59;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.option-effects-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid #d7d7d7;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 280px;
+  z-index: 100;
+  margin-bottom: 10px;
+}
+
+.option-effects-tooltip:after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -8px;
+  border-width: 8px;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.95) transparent transparent transparent;
+}
+
+.tooltip-title {
+  font-size: 14px;
+  font-weight: bold;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  color: #333;
+  text-align: center;
+}
+
+.tooltip-conditions {
+  margin-bottom: 10px;
+  padding: 5px;
+  background-color: #f7f7f7;
+  border-radius: 4px;
+}
+
+.conditions-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: #7f8c8d;
+  margin-bottom: 5px;
+}
+
+.condition-item {
+  font-size: 12px;
+  padding: 2px 5px;
+  margin: 2px 0;
+  border-radius: 3px;
+}
+
+.condition-met {
+  color: #27ae60;
+  background-color: rgba(46, 204, 113, 0.1);
+}
+
+.condition-not-met {
+  color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+.tooltip-effects {
+  margin-bottom: 10px;
+}
+
+.option-effect {
+  font-size: 13px;
+  padding: 3px 0;
+  text-align: left;
+}
+
+.effect-positive {
+  color: #27ae60;
+}
+
+.effect-negative {
+  color: #c0392b;
+}
+
+.effect-neutral {
+  color: #7f8c8d;
+}
+
+.option-notes {
+  font-size: 12px;
+  padding: 5px;
+  background-color: rgba(189, 195, 199, 0.2);
+  border-radius: 4px;
+  border-left: 2px solid #95a5a6;
+}
+
+.notes-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #7f8c8d;
+  margin-bottom: 3px;
+}
+
+.notes-text {
+  font-style: italic;
+  color: #7f8c8d;
+  line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+  .option-button {
+    width: 90%;
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+  
+  .option-effects-tooltip {
+    width: 220px;
+    font-size: 12px;
+  }
 } 

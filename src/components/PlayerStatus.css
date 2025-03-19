@@ -1,45 +1,164 @@
 .player-status {
-  background-color: rgba(30, 30, 50, 0.8);
-  color: #e0e0ff;
+  padding: 15px;
+  margin-bottom: 20px;
   border-radius: 5px;
-  padding: 10px 15px;
-  margin: 15px auto;
-  max-width: 300px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  border: 1px solid #504080;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.9);
+  max-width: 350px;
 }
 
-.player-status h3 {
+.status-title {
   text-align: center;
-  margin: 0 0 10px 0;
-  color: #b0a0ff;
-  border-bottom: 1px solid #504080;
-  padding-bottom: 5px;
-  font-family: 'STXingkai', 'AR PL UKai CN', sans-serif;
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #8b4513;
+  font-size: 18px;
+  border-bottom: 1px solid #f0e6d2;
+  padding-bottom: 8px;
 }
 
-.status-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 8px;
+.status-section {
+  margin-bottom: 15px;
+}
+
+.section-title {
+  font-size: 14px;
+  color: #5d8aa8;
+  margin: 5px 0;
+  font-weight: normal;
+  border-left: 3px solid #8b4513;
+  padding-left: 8px;
 }
 
 .status-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  margin: 8px 0;
+  font-size: 14px;
 }
 
 .status-label {
-  color: #c0b0ff;
-  font-weight: bold;
+  flex: 0 0 70px;
+  color: #7f8c8d;
 }
 
-.status-value {
-  color: #ffffff;
-  background-color: rgba(60, 60, 90, 0.6);
-  padding: 2px 6px;
-  border-radius: 3px;
-  min-width: 30px;
-  text-align: center;
+.status-progress-container {
+  flex: 1;
+  height: 16px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.status-progress-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 10px;
+}
+
+.status-progress-text {
+  position: absolute;
+  right: 8px;
+  top: 0;
+  color: white;
+  font-size: 12px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  line-height: 16px;
+}
+
+/* Identity styling */
+.identity-item {
+  margin-bottom: 5px;
+}
+
+.identity-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: white;
+  background-color: #95a5a6;
+}
+
+.sect-sword {
+  background-color: #3498db;
+}
+
+.sect-demon {
+  background-color: #8e44ad;
+}
+
+.sect-independent {
+  background-color: #27ae60;
+}
+
+.sword-wood {
+  background-color: #27ae60;
+}
+
+.sword-blood {
+  background-color: #e74c3c;
+}
+
+.sword-dao {
+  background-color: #f39c12;
+}
+
+/* Flags styling */
+.flags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.flag-item {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.flag-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: white;
+  margin-right: 5px;
+  font-size: 10px;
+}
+
+.flag-true {
+  background-color: #27ae60;
+}
+
+.flag-false {
+  background-color: #e74c3c;
+}
+
+.flag-label {
+  color: #34495e;
+}
+
+/* Items styling */
+.items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.item-entry {
+  background-color: #f8f9fa;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border-left: 3px solid #f39c12;
+  font-size: 12px;
+  color: #7f8c8d;
 } 

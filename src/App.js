@@ -16,14 +16,27 @@ function App() {
   const [playerStatus, setPlayerStatus] = useState({
     '修为': 0,
     '灵力': 100,
+    '体力': 100,
+    '道心': 50,
     '因果值': 0,
-    '道心': 50
+    '执念值': 0,
+    '剑意类型': "无",
+    '宗门立场': "无"
   });
   const [showSaveLoadScreen, setShowSaveLoadScreen] = useState(false);
   
   useEffect(() => {
     // 初始化时加载第一个章节
     setCurrentChapter(storyData.chapters[0]);
+    
+    // 初始化玩家数据，合并默认数据和故事中的变量
+    if (storyData.variables) {
+      setPlayerStatus(prevStatus => ({
+        ...prevStatus,
+        ...storyData.variables
+      }));
+    }
+    
     setIsLoading(false);
     
     // 初始化音频
@@ -38,14 +51,39 @@ function App() {
     };
   }, []);
   
+  // 获取当前对话选项，可以来自章节本身或角色对话
+  const getCurrentOptions = () => {
+    // 检查是否有角色对话选项
+    if (currentChapter.dialogue && currentChapter.dialogue.length > 0) {
+      const lastDialogue = currentChapter.dialogue[currentChapter.dialogue.length - 1];
+      if (lastDialogue.options) {
+        return lastDialogue.options;
+      }
+    }
+    
+    // 否则返回章节选项
+    return currentChapter.options || [];
+  };
+  
   // 重置游戏状态到初始值
   const handleResetGame = () => {
-    setPlayerStatus({
+    // 合并基础状态和故事变量
+    const initialStatus = {
       '修为': 0,
       '灵力': 100,
-      '因果值': 0,
+      '体力': 100,
       '道心': 50
-    });
+    };
+    
+    if (storyData.variables) {
+      setPlayerStatus({
+        ...initialStatus,
+        ...storyData.variables
+      });
+    } else {
+      setPlayerStatus(initialStatus);
+    }
+    
     setCurrentChapter(storyData.chapters[0]);
     
     // 播放重置音效
@@ -67,9 +105,14 @@ function App() {
         
         // 遍历所有效果并应用
         Object.entries(option.effects).forEach(([stat, value]) => {
-          // 如果状态已存在，则累加值；否则新建状态
-          if (newStatus.hasOwnProperty(stat)) {
-            newStatus[stat] += value;
+          // 处理不同类型的效果
+          if (typeof value === 'number') {
+            // 数值类效果
+            if (newStatus.hasOwnProperty(stat)) {
+              newStatus[stat] += value;
+            } else {
+              newStatus[stat] = value;
+            }
             
             // 验证属性值不低于0
             if (newStatus[stat] < 0) {
@@ -83,8 +126,23 @@ function App() {
             if (stat === '道心' && newStatus[stat] > 100) {
               newStatus[stat] = 100;
             }
-          } else {
-            newStatus[stat] = Math.max(0, value); // 确保新属性不会是负值
+            if (stat === '体力' && newStatus[stat] > 100) {
+              newStatus[stat] = 100;
+            }
+          } else if (typeof value === 'boolean') {
+            // 布尔类效果
+            newStatus[stat] = value;
+          } else if (typeof value === 'string') {
+            // 字符串类效果，如获得物品或技能
+            if (stat === '物品') {
+              // 物品系统
+              const inventory = newStatus['物品库存'] || [];
+              inventory.push(value);
+              newStatus['物品库存'] = inventory;
+            } else {
+              // 其他字符串效果
+              newStatus[stat] = value;
+            }
           }
         });
         
@@ -97,22 +155,31 @@ function App() {
       }
     }
     
-    // 查找下一个章节
-    const nextChapter = storyData.chapters.find(
-      chapter => chapter.id === option.nextId
-    );
+    // 处理成功或失败结果
+    if (option.success) {
+      // TODO: 处理小游戏成功
+      console.log('小游戏成功');
+    } else if (option.fail) {
+      // TODO: 处理小游戏失败
+      console.log('小游戏失败');
+    }
     
-    if (nextChapter) {
-      setCurrentChapter(nextChapter);
+    // 查找下一个章节
+    if (option.nextId) {
+      const nextChapter = storyData.chapters.find(
+        chapter => chapter.id === option.nextId
+      );
       
-      // 根据章节类型播放不同背景音乐
-      if (nextChapter.id === 'chapter2') {
-        soundManager.playBackgroundMusic('meditation');
-      } else if (nextChapter.id === 'chapter6') {
-        soundManager.playBackgroundMusic('battle');
+      if (nextChapter) {
+        setCurrentChapter(nextChapter);
+        
+        // 播放背景音乐
+        if (nextChapter.assets && nextChapter.assets.bgm) {
+          soundManager.playBackgroundMusic(nextChapter.assets.bgm);
+        }
+      } else {
+        console.error('找不到章节:', option.nextId);
       }
-    } else {
-      console.error('找不到章节:', option.nextId);
     }
   };
 
@@ -134,11 +201,9 @@ function App() {
     if (chapter) {
       setCurrentChapter(chapter);
       
-      // 根据章节类型播放不同背景音乐
-      if (chapter.id === 'chapter2') {
-        soundManager.playBackgroundMusic('meditation');
-      } else if (chapter.id === 'chapter6') {
-        soundManager.playBackgroundMusic('battle');
+      // 播放背景音乐
+      if (chapter.assets && chapter.assets.bgm) {
+        soundManager.playBackgroundMusic(chapter.assets.bgm);
       } else {
         soundManager.playBackgroundMusic('main');
       }
@@ -183,11 +248,12 @@ function App() {
                 </button>
               </div>
             </div>
-            <StoryDisplay chapter={currentChapter} />
+            <StoryDisplay chapter={currentChapter} playerStatus={playerStatus} />
             {currentChapter && (
               <Options 
-                options={currentChapter.options} 
+                options={getCurrentOptions()} 
                 onSelect={handleOptionSelect}
+                playerStatus={playerStatus}
               />
             )}
             

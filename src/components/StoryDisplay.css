@@ -16,6 +16,15 @@
   font-family: 'Arial', '宋体', sans-serif;
 }
 
+.chapter-location {
+  color: #5d8aa8;
+  font-size: 18px;
+  text-align: center;
+  margin-top: -10px;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
 .story-display p {
   font-size: 18px;
   line-height: 1.6;
@@ -28,4 +37,104 @@
   font-size: 20px;
   margin-top: 50px;
   color: #8b4513;
+}
+
+.ink-scroll-area {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 10px;
+  margin-bottom: 15px;
+}
+
+.cause-effect-warning {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: rgba(255, 248, 220, 0.7);
+  border-left: 4px solid #f5b041;
+  color: #8b4513;
+  font-style: italic;
+}
+
+.cause-effect-icon {
+  margin-right: 8px;
+  font-size: 20px;
+  color: #f5b041;
+}
+
+.current-fate-path {
+  margin-top: 15px;
+  text-align: right;
+  font-style: italic;
+  color: #2c3e50;
+  border-top: 1px solid #d7d7d7;
+  padding-top: 10px;
+}
+
+.fate-path-label {
+  padding: 3px 8px;
+  background-color: rgba(236, 240, 241, 0.6);
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* Character and dialogue styling */
+.character-info {
+  margin: 15px 0;
+  padding: 8px;
+  background-color: rgba(235, 245, 251, 0.5);
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.character-label {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.character-name {
+  color: #34495e;
+}
+
+.chapter-dialogue {
+  margin: 15px 0;
+  padding: 10px;
+  background-color: rgba(245, 245, 245, 0.6);
+  border-radius: 5px;
+  border-left: 3px solid #8b4513;
+}
+
+.dialogue-entry {
+  margin-bottom: 12px;
+}
+
+.dialogue-speaker {
+  font-weight: bold;
+  color: #8b4513;
+  margin-bottom: 3px;
+}
+
+.dialogue-text {
+  color: #34495e;
+  line-height: 1.6;
+  padding-left: 15px;
+  font-size: 17px;
+}
+
+/* Scene assets styling */
+.scene-assets {
+  margin-top: 15px;
+  padding: 8px;
+  background-color: rgba(242, 242, 242, 0.5);
+  border-radius: 5px;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.bgm-label {
+  color: #7f8c8d;
+  font-weight: bold;
+}
+
+.bgm-info {
+  margin-bottom: 5px;
 } 
