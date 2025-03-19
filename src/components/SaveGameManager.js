@@ -2,6 +2,7 @@ import React from 'react';
 import { collection, addDoc, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import './SaveGameManager.css';
+import '../styles/WaterInkTheme.css';
 
 const SaveGameManager = ({ currentChapter, playerStatus, onLoad }) => {
   // 保存游戏函数
@@ -55,9 +56,9 @@ const SaveGameManager = ({ currentChapter, playerStatus, onLoad }) => {
   };
 
   return (
-    <div className="save-load-controls">
-      <button className="save-button" onClick={saveGame}>保存游戏</button>
-      <button className="load-button" onClick={loadGame}>加载游戏</button>
+    <div className="save-load-controls water-ink-container">
+      <button className="save-button ink-button" onClick={saveGame}>保存游戏</button>
+      <button className="load-button ink-button" onClick={loadGame}>加载游戏</button>
     </div>
   );
 };

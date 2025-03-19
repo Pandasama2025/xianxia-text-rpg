@@ -4,9 +4,11 @@ import StoryDisplay from './components/StoryDisplay';
 import Options from './components/Options';
 import PlayerStatus from './components/PlayerStatus';
 import SaveGameManager from './components/SaveGameManager';
+import SaveLoadScreen from './components/SaveLoadScreen';
 import SoundControls from './components/SoundControls';
 import soundManager from './audio/soundManager';
 import storyData from './data/story.json';
+import './styles/WaterInkTheme.css';
 
 function App() {
   const [currentChapter, setCurrentChapter] = useState(null);
@@ -17,6 +19,7 @@ function App() {
     '因果值': 0,
     '道心': 50
   });
+  const [showSaveLoadScreen, setShowSaveLoadScreen] = useState(false);
   
   useEffect(() => {
     // 初始化时加载第一个章节
@@ -146,32 +149,39 @@ function App() {
     setIsLoading(false);
   };
 
+  // 打开/关闭存档界面
+  const toggleSaveLoadScreen = () => {
+    setShowSaveLoadScreen(!showSaveLoadScreen);
+    soundManager.playUISound('click');
+  };
+
   return (
-    <div className="App">
+    <div className="App water-ink-container">
       <header className="App-header">
-        <h1>仙侠文字RPG</h1>
+        <h1 className="water-ink-title">仙侠文字RPG</h1>
         <SoundControls />
       </header>
       <main>
         {isLoading ? (
-          <div className="loading-container">加载中...</div>
+          <div className="loading-container water-ink-text">加载中...</div>
         ) : (
           <>
             <div className="game-controls">
               <PlayerStatus status={playerStatus} />
-              {currentChapter && (
-                <SaveGameManager 
-                  currentChapter={currentChapter}
-                  playerStatus={playerStatus}
-                  onLoad={handleLoadGame}
-                />
-              )}
-              <button 
-                className="reset-button" 
-                onClick={handleResetGame}
-              >
-                重新开始
-              </button>
+              <div className="game-buttons">
+                <button 
+                  className="save-load-button ink-button"
+                  onClick={toggleSaveLoadScreen}
+                >
+                  存档/读档
+                </button>
+                <button 
+                  className="reset-button ink-button" 
+                  onClick={handleResetGame}
+                >
+                  重新开始
+                </button>
+              </div>
             </div>
             <StoryDisplay chapter={currentChapter} />
             {currentChapter && (
@@ -179,6 +189,19 @@ function App() {
                 options={currentChapter.options} 
                 onSelect={handleOptionSelect}
               />
+            )}
+            
+            {/* 存档/读档界面 */}
+            {showSaveLoadScreen && (
+              <>
+                <div className="save-load-overlay" onClick={toggleSaveLoadScreen}></div>
+                <SaveLoadScreen 
+                  currentChapter={currentChapter}
+                  playerStatus={playerStatus}
+                  onLoad={handleLoadGame}
+                  onClose={toggleSaveLoadScreen}
+                />
+              </>
             )}
           </>
         )}

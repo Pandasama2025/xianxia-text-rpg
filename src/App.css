@@ -1,8 +1,11 @@
 .App {
   text-align: center;
-  max-width: 800px;
-  margin: 0 auto;
-  font-family: 'Arial', sans-serif;
+  max-width: 900px;
+  margin: 20px auto;
+  font-family: 'STKaiti', 'FangSong', serif;
+  overflow: hidden;
+  border-radius: 8px;
+  min-height: calc(100vh - 40px);
 }
 
 .App-logo {
@@ -17,21 +20,24 @@
 }
 
 .App-header {
-  background-color: #1a1a2e;
   padding: 20px;
-  color: white;
-  border-bottom: 2px solid #e94560;
+  background-color: var(--paper-aged);
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ink-medium);
 }
 
 .App-header h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 2.2rem;
 }
 
 main {
   padding: 20px;
-  background-color: #f8f8f8;
-  min-height: 80vh;
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
 .story-display {
@@ -93,46 +99,28 @@ main {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  width: 100%;
-  padding: 0 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.game-controls button {
-  background-color: #0f3460;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
+.game-buttons {
+  display: flex;
+  gap: 10px;
 }
 
-.game-controls button:hover {
-  background-color: #e94560;
-}
-
+/* Style for buttons */
+.save-load-button,
 .reset-button {
-  background-color: #a52a2a;
-  color: white;
-  border: 2px solid #8b0000;
-  border-radius: 4px;
-  padding: 8px 15px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+  min-width: 100px;
 }
 
-.reset-button:hover {
-  background-color: #8b0000;
-}
-
+/* Loading container */
 .loading-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
-  width: 100%;
-  font-size: 20px;
-  color: #8b4513;
+  min-height: 300px;
+  font-size: 1.5rem;
 }
 
 .App-link {
@@ -148,78 +136,47 @@ main {
   }
 }
 
-/* Responsive Design */
+/* Media queries for responsiveness */
 @media screen and (max-width: 768px) {
   .App {
     max-width: 100%;
-    padding: 0 10px;
+    margin: 0;
+    border-radius: 0;
   }
-  
+
   .App-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
   }
-  
-  .story-display {
+
+  main {
     padding: 15px;
   }
-  
-  .story-display p {
-    font-size: 1rem;
-  }
-  
-  .option-button {
-    padding: 10px 15px;
-    font-size: 0.9rem;
-  }
-  
-  .status-bar {
-    flex-direction: row;
-    flex-wrap: wrap;
-    font-size: 0.9rem;
-  }
-  
+
   .game-controls {
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
   }
   
-  .game-controls button {
-    flex: 1;
-    min-width: 100px;
-    margin: 5px;
+  .game-buttons {
+    display: flex;
+    justify-content: center;
   }
 }
 
 @media screen and (max-width: 480px) {
   .App-header {
+    padding: 15px 10px;
+  }
+
+  .App-header h1 {
+    font-size: 1.5rem;
+  }
+
+  main {
     padding: 10px;
   }
   
-  .App-header h1 {
-    font-size: 1.2rem;
-  }
-  
-  .story-display h2 {
-    font-size: 1.2rem;
-  }
-  
-  .story-display p {
-    font-size: 0.9rem;
-  }
-  
-  .option-button {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-  }
-  
-  .status-bar {
-    padding: 8px;
-    font-size: 0.8rem;
-  }
-  
-  .game-controls button {
-    padding: 6px 12px;
-    font-size: 0.8rem;
+  .game-buttons {
+    flex-direction: column;
   }
 }
