@@ -168,4 +168,4 @@ const soundManager = {
   SOUND_TYPES,
 };
 
-export default soundManager; 
+export default soundManager;

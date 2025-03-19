@@ -78,4 +78,4 @@ const SoundControls = () => {
   );
 };
 
-export default SoundControls; 
+export default SoundControls;
