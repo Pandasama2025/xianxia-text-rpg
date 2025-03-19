@@ -1,0 +1,410 @@
+/* Cultivation.css - 修炼系统样式 */
+
+.cultivation-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--paper-cream);
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.cultivation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--ink-light);
+  padding-bottom: 10px;
+}
+
+.cultivation-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.close-button {
+  background-color: transparent;
+  border: 1px solid var(--ink-medium);
+  padding: 5px 10px;
+  font-size: 0.9rem;
+}
+
+/* 修炼状态区域 */
+.cultivation-status {
+  background-color: var(--paper-aged);
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid var(--ink-light);
+}
+
+.realm-info {
+  margin-bottom: 15px;
+  font-family: "STKaiti", "FangSong", serif;
+}
+
+.current-realm, .next-realm {
+  margin-bottom: 5px;
+}
+
+.current-realm span, .next-realm span {
+  font-weight: bold;
+  color: var(--ink-dark);
+}
+
+.progress-container {
+  margin: 15px 0;
+}
+
+.progress-bar {
+  height: 20px;
+  background-color: var(--paper-cream);
+  border: 1px solid var(--ink-medium);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background-image: linear-gradient(to right, #e6d7c9, #baa89a);
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 17a7 7 0 1 0 0-14 7 7 0 0 0 0 14zm20 0a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM10 37a7 7 0 1 0 0-14 7 7 0 0 0 0 14zm10-17h20v20H20V20zm10 17a7 7 0 1 0 0-14 7 7 0 0 0 0 14z' fill='%23000000' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 0.3;
+}
+
+.progress-text {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--ink-medium);
+  margin-top: 5px;
+}
+
+.player-attributes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.attribute {
+  flex: 1;
+  min-width: 100px;
+  background-color: var(--paper-cream);
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--ink-light);
+  font-family: "STKaiti", "FangSong", serif;
+}
+
+.attribute span {
+  font-weight: bold;
+  color: var(--ink-dark);
+}
+
+/* 修炼按钮区域 */
+.cultivation-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cultivation-buttons {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.cultivation-button, .intensive-button {
+  padding: 10px 15px;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cultivation-button::before, .intensive-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle, var(--ink-pale) 1px, transparent 1px);
+  background-size: 10px 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cultivation-button:hover::before, .intensive-button:hover::before {
+  opacity: 0.2;
+}
+
+.cultivation-button.disabled, .intensive-button.disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.intensive-button {
+  background-color: var(--paper-aged);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+.intensive-button:hover {
+  background-color: var(--paper-cream);
+  color: var(--accent-red);
+}
+
+.cultivation-count {
+  font-size: 0.9rem;
+  color: var(--ink-medium);
+  margin-top: 5px;
+}
+
+/* 技能区域 */
+.skills-section {
+  margin-top: 30px;
+}
+
+.skills-section h3 {
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--ink-light);
+}
+
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skill-item {
+  padding: 10px 15px;
+  border-radius: 4px;
+  background-color: var(--paper-aged);
+  border: 1px solid var(--ink-light);
+  transition: all 0.2s ease;
+}
+
+.skill-item.unlocked {
+  cursor: pointer;
+}
+
+.skill-item.unlocked:hover {
+  background-color: var(--paper-cream);
+  border-color: var(--ink-medium);
+}
+
+.skill-item.locked {
+  opacity: 0.7;
+  background-color: var(--paper-cream);
+  cursor: not-allowed;
+}
+
+.skill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skill-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--ink-dark);
+  font-family: "STKaiti", "FangSong", serif;
+}
+
+.skill-unlock-info {
+  font-size: 0.8rem;
+  color: var(--ink-medium);
+}
+
+.skill-details {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--ink-light);
+}
+
+.skill-description {
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+  line-height: 1.5;
+  color: var(--ink-dark);
+}
+
+.skill-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.skill-effect {
+  background-color: var(--paper-cream);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 0.9rem;
+  border: 1px solid var(--ink-light);
+}
+
+.use-skill-button {
+  width: 100%;
+  padding: 8px;
+  font-size: 0.95rem;
+}
+
+/* 突破效果 */
+.breakthrough-effect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  animation: fadeIn 0.5s ease;
+}
+
+.breakthrough-content {
+  background-color: var(--paper-cream);
+  padding: 30px 50px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+  animation: scaleIn 0.5s ease;
+  border: 2px solid var(--accent-red);
+}
+
+.breakthrough-content h3 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: var(--accent-red);
+  font-family: "Ma Shan Zheng", "STKaiti", serif;
+}
+
+.breakthrough-content p {
+  font-size: 1.2rem;
+  color: var(--ink-dark);
+}
+
+.breakthrough-content p span {
+  font-weight: bold;
+  color: var(--accent-red);
+  font-size: 1.4rem;
+  font-family: "Ma Shan Zheng", "STKaiti", serif;
+}
+
+/* 技能解锁通知 */
+.skill-unlock-notification {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  animation: slideIn 0.5s ease;
+}
+
+.notification-content {
+  background-color: var(--paper-cream);
+  padding: 15px 20px;
+  border-radius: 6px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  border-left: 4px solid #4a7c59;
+}
+
+.notification-content h3 {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+  color: #4a7c59;
+}
+
+.notification-content p {
+  font-size: 0.95rem;
+  color: var(--ink-dark);
+}
+
+.notification-content p span {
+  font-weight: bold;
+  color: var(--ink-dark);
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+  .cultivation-container {
+    padding: 15px;
+  }
+  
+  .player-attributes {
+    flex-direction: column;
+  }
+  
+  .attribute {
+    width: 100%;
+  }
+  
+  .cultivation-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .cultivation-button, .intensive-button {
+    max-width: 250px;
+  }
+  
+  .skill-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .skill-unlock-info {
+    margin-top: 5px;
+  }
+  
+  .breakthrough-content {
+    padding: 20px 30px;
+  }
+  
+  .breakthrough-content h3 {
+    font-size: 1.5rem;
+  }
+  
+  .breakthrough-content p {
+    font-size: 1rem;
+  }
+} 

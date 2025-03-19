@@ -3,9 +3,9 @@ import './App.css';
 import StoryDisplay from './components/StoryDisplay';
 import Options from './components/Options';
 import PlayerStatus from './components/PlayerStatus';
-import SaveGameManager from './components/SaveGameManager';
 import SaveLoadScreen from './components/SaveLoadScreen';
 import SoundControls from './components/SoundControls';
+import Cultivation from './components/Cultivation';
 import soundManager from './audio/soundManager';
 import storyData from './data/story.json';
 import './styles/WaterInkTheme.css';
@@ -24,6 +24,7 @@ function App() {
     '宗门立场': "无"
   });
   const [showSaveLoadScreen, setShowSaveLoadScreen] = useState(false);
+  const [showCultivation, setShowCultivation] = useState(false);
   
   useEffect(() => {
     // 初始化时加载第一个章节
@@ -220,6 +221,44 @@ function App() {
     soundManager.playUISound('click');
   };
 
+  // 打开/关闭修炼界面
+  const toggleCultivation = () => {
+    setShowCultivation(!showCultivation);
+    soundManager.playUISound('click');
+  };
+
+  // 处理修炼状态更新
+  const handleCultivationUpdate = (effects) => {
+    setPlayerStatus(prevStatus => {
+      const newStatus = { ...prevStatus };
+      
+      // 处理修炼效果
+      Object.entries(effects).forEach(([stat, value]) => {
+        if (newStatus.hasOwnProperty(stat)) {
+          newStatus[stat] += value;
+          
+          // 验证属性值不低于0
+          if (newStatus[stat] < 0) {
+            newStatus[stat] = 0;
+          }
+          
+          // 对于特定属性，确保不超过最大值
+          if (stat === '灵力' && newStatus[stat] > 100) {
+            newStatus[stat] = 100;
+          }
+          if (stat === '道心' && newStatus[stat] > 100) {
+            newStatus[stat] = 100;
+          }
+          if (stat === '体力' && newStatus[stat] > 100) {
+            newStatus[stat] = 100;
+          }
+        }
+      });
+      
+      return newStatus;
+    });
+  };
+
   return (
     <div className="App water-ink-container">
       <header className="App-header">
@@ -241,6 +280,12 @@ function App() {
                   存档/读档
                 </button>
                 <button 
+                  className="cultivation-button ink-button"
+                  onClick={toggleCultivation}
+                >
+                  修炼
+                </button>
+                <button 
                   className="reset-button ink-button" 
                   onClick={handleResetGame}
                 >
@@ -248,24 +293,26 @@ function App() {
                 </button>
               </div>
             </div>
-            <StoryDisplay chapter={currentChapter} playerStatus={playerStatus} />
-            {currentChapter && (
-              <Options 
-                options={getCurrentOptions()} 
-                onSelect={handleOptionSelect}
-                playerStatus={playerStatus}
-              />
-            )}
             
-            {/* 存档/读档界面 */}
-            {showSaveLoadScreen && (
+            {showSaveLoadScreen ? (
+              <SaveLoadScreen 
+                currentChapterId={currentChapter.id}
+                playerStatus={playerStatus}
+                onLoad={handleLoadGame}
+                onClose={() => setShowSaveLoadScreen(false)}
+              />
+            ) : showCultivation ? (
+              <Cultivation 
+                playerStatus={playerStatus} 
+                onStatusUpdate={handleCultivationUpdate} 
+                onClose={() => setShowCultivation(false)} 
+              />
+            ) : (
               <>
-                <div className="save-load-overlay" onClick={toggleSaveLoadScreen}></div>
-                <SaveLoadScreen 
-                  currentChapter={currentChapter}
-                  playerStatus={playerStatus}
-                  onLoad={handleLoadGame}
-                  onClose={toggleSaveLoadScreen}
+                <StoryDisplay chapter={currentChapter} />
+                <Options 
+                  options={getCurrentOptions()} 
+                  onSelect={handleOptionSelect}
                 />
               </>
             )}

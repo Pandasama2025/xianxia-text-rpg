@@ -13,6 +13,7 @@ const SOUND_PATHS = {
     main: '/sounds/background/main_theme.mp3',
     battle: '/sounds/background/battle_theme.mp3',
     meditation: '/sounds/background/meditation.mp3',
+    cultivation: '/sounds/background/cultivation_theme.mp3',
   },
   [SOUND_TYPES.UI]: {
     click: '/sounds/ui/click.mp3',
@@ -24,6 +25,10 @@ const SOUND_PATHS = {
     achievement: '/sounds/effects/achievement.mp3',
     sword: '/sounds/effects/sword.mp3',
     magic: '/sounds/effects/magic.mp3',
+    cultivate: '/sounds/effects/cultivate.mp3',
+    skill: '/sounds/effects/skill.mp3',
+    realmBreakthrough: '/sounds/effects/realm_breakthrough.mp3',
+    skillUnlock: '/sounds/effects/skill_unlock.mp3',
   },
 };
 
