@@ -1,324 +1,423 @@
-import React, { useState, useEffect } from 'react';
+// 导入React和必要的钩子
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
-import StoryDisplay from './components/StoryDisplay';
-import Options from './components/Options';
-import PlayerStatus from './components/PlayerStatus';
-import SaveLoadScreen from './components/SaveLoadScreen';
-import SoundControls from './components/SoundControls';
-import Cultivation from './components/Cultivation';
-import soundManager from './audio/soundManager';
-import storyData from './data/story.json';
-import './styles/WaterInkTheme.css';
 
+// 导入自定义组件
+import Header from './components/Header';
+import StatusBar from './components/StatusBar';
+import StoryDisplay from './components/StoryDisplay';
+import OptionsContainer from './components/OptionsContainer';
+import BattleScene from './components/BattleScene';
+import CharacterSheet from './components/CharacterSheet';
+import Inventory from './components/Inventory';
+import CultivationPanel from './components/CultivationPanel';
+import TreasuryOptions from './components/TreasuryOptions';
+import SettingsPanel from './components/SettingsPanel';
+
+// 导入游戏数据
+import storyData from './data/story.json';
+import skills from './data/skills.json';
+import initialItems from './data/items.json';
+
+// 导入工具函数
+import { 
+  applyEffects, 
+  calculateLevels, 
+  getTotalAttributePoints, 
+  getAttributes 
+} from './utils/gameUtils';
+
+// 导入WebSocket实用工具
+import { createWebSocket } from './utils/socketUtils';
+
+// 应用主组件
 function App() {
-  const [currentChapter, setCurrentChapter] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [playerStatus, setPlayerStatus] = useState({
-    '修为': 0,
-    '灵力': 100,
-    '体力': 100,
-    '道心': 50,
-    '因果值': 0,
-    '执念值': 0,
-    '剑意类型': "无",
-    '宗门立场': "无"
-  });
-  const [showSaveLoadScreen, setShowSaveLoadScreen] = useState(false);
-  const [showCultivation, setShowCultivation] = useState(false);
-  
-  useEffect(() => {
-    // 初始化时加载第一个章节
-    setCurrentChapter(storyData.chapters[0]);
-    
-    // 初始化玩家数据，合并默认数据和故事中的变量
-    if (storyData.variables) {
-      setPlayerStatus(prevStatus => ({
-        ...prevStatus,
-        ...storyData.variables
-      }));
+  // 状态管理
+  const [player, setPlayer] = useState({
+    体力: 100,  // Health
+    灵力: 50,    // Spirit/Mana
+    修为: 0,     // Cultivation Base
+    道行: 0,     // Dao Insight
+    智慧: 10,    // Intelligence
+    力量: 10,    // Strength
+    敏捷: 10,    // Agility
+    体魄: 10,    // Constitution
+    因果: 0,     // Karma
+    声望: 0,     // Reputation/Fame
+    金钱: 50,    // Money
+    物品: initialItems,
+    已解锁技能: [],
+    装备: [],
+    // 境界名称和等级的对应关系
+    境界: {
+      name: "凡人",
+      level: 0
     }
+  });
+
+  const [currentChapter, setCurrentChapter] = useState(storyData.chapters.find(c => c.id === "chapter1"));
+  const [storyHistory, setStoryHistory] = useState([]);
+  const [inBattle, setInBattle] = useState(false);
+  const [currentEnemy, setCurrentEnemy] = useState(null);
+  const [nextChapterId, setNextChapterId] = useState(null);
+  const [showCharacterSheet, setShowCharacterSheet] = useState(false);
+  const [showInventory, setShowInventory] = useState(false);
+  const [showCultivation, setShowCultivation] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [treasuryOptions, setTreasuryOptions] = useState(null);
+  const [socket, setSocket] = useState(null);
+  
+  // 初始化WebSocket连接
+  useEffect(() => {
+    const newSocket = createWebSocket();
     
-    setIsLoading(false);
+    newSocket.onopen = () => {
+      console.log('WebSocket连接已建立');
+      // 发送初始化消息
+      newSocket.send(JSON.stringify({
+        type: 'init',
+        userId: 'player1'
+      }));
+    };
     
-    // 初始化音频
-    soundManager.init();
+    newSocket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      
+      switch(message.type) {
+        case 'chapterUpdate':
+          handleChapterUpdate(message.data);
+          break;
+        case 'playerUpdate':
+          handlePlayerUpdate(message.data);
+          break;
+        default:
+          console.log('收到未知类型的消息:', message);
+      }
+    };
     
-    // 播放背景音乐
-    soundManager.playBackgroundMusic('main');
+    setSocket(newSocket);
     
-    // 清理函数
     return () => {
-      soundManager.stopBackgroundMusic();
+      if (newSocket) {
+        newSocket.close();
+      }
     };
   }, []);
   
-  // 获取当前对话选项，可以来自章节本身或角色对话
-  const getCurrentOptions = () => {
-    // 检查是否有角色对话选项
-    if (currentChapter.dialogue && currentChapter.dialogue.length > 0) {
-      const lastDialogue = currentChapter.dialogue[currentChapter.dialogue.length - 1];
-      if (lastDialogue.options) {
-        return lastDialogue.options;
-      }
+  // 处理章节更新
+  const handleChapterUpdate = (data) => {
+    const newChapter = storyData.chapters.find(c => c.id === data.chapterId);
+    if (newChapter) {
+      setCurrentChapter(newChapter);
+      addToStoryHistory(newChapter);
     }
-    
-    // 否则返回章节选项
-    return currentChapter.options || [];
   };
   
-  // 重置游戏状态到初始值
-  const handleResetGame = () => {
-    // 合并基础状态和故事变量
-    const initialStatus = {
-      '修为': 0,
-      '灵力': 100,
-      '体力': 100,
-      '道心': 50
-    };
-    
-    if (storyData.variables) {
-      setPlayerStatus({
-        ...initialStatus,
-        ...storyData.variables
-      });
-    } else {
-      setPlayerStatus(initialStatus);
-    }
-    
-    setCurrentChapter(storyData.chapters[0]);
-    
-    // 播放重置音效
-    soundManager.playUISound('select');
+  // 处理玩家更新
+  const handlePlayerUpdate = (data) => {
+    setPlayer(prev => ({
+      ...prev,
+      ...data
+    }));
   };
   
+  // 添加到故事历史
+  const addToStoryHistory = (chapter) => {
+    setStoryHistory(prev => [...prev, {
+      title: chapter.title,
+      text: chapter.text
+    }]);
+  };
+
   // 处理选项选择
-  const handleOptionSelect = (option) => {
-    // 播放选择音效
-    soundManager.playUISound('click');
-    
-    // 应用选项效果到玩家状态
-    if (option.effects && Object.keys(option.effects).length > 0) {
-      // 检查是否有修为提升
-      const hadCultivationImprovement = option.effects['修为'] && option.effects['修为'] > 0;
+  const handleOptionSelect = useCallback((option) => {
+    // 如果有效果，应用它们
+    if (option.effects) {
+      const updatedPlayer = applyEffects(player, option.effects);
+      setPlayer(updatedPlayer);
       
-      setPlayerStatus(prevStatus => {
-        const newStatus = { ...prevStatus };
-        
-        // 遍历所有效果并应用
-        Object.entries(option.effects).forEach(([stat, value]) => {
-          // 处理不同类型的效果
-          if (typeof value === 'number') {
-            // 数值类效果
-            if (newStatus.hasOwnProperty(stat)) {
-              newStatus[stat] += value;
-            } else {
-              newStatus[stat] = value;
-            }
-            
-            // 验证属性值不低于0
-            if (newStatus[stat] < 0) {
-              newStatus[stat] = 0;
-            }
-            
-            // 对于特定属性，确保不超过最大值
-            if (stat === '灵力' && newStatus[stat] > 100) {
-              newStatus[stat] = 100;
-            }
-            if (stat === '道心' && newStatus[stat] > 100) {
-              newStatus[stat] = 100;
-            }
-            if (stat === '体力' && newStatus[stat] > 100) {
-              newStatus[stat] = 100;
-            }
-          } else if (typeof value === 'boolean') {
-            // 布尔类效果
-            newStatus[stat] = value;
-          } else if (typeof value === 'string') {
-            // 字符串类效果，如获得物品或技能
-            if (stat === '物品') {
-              // 物品系统
-              const inventory = newStatus['物品库存'] || [];
-              inventory.push(value);
-              newStatus['物品库存'] = inventory;
-            } else {
-              // 其他字符串效果
-              newStatus[stat] = value;
-            }
-          }
-        });
-        
-        return newStatus;
-      });
-      
-      // 如果修为提升，播放特殊音效
-      if (hadCultivationImprovement) {
-        soundManager.playEffectSound('levelUp');
+      // 通过WebSocket发送玩家更新
+      if (socket) {
+        socket.send(JSON.stringify({
+          type: 'playerUpdate',
+          data: updatedPlayer
+        }));
       }
     }
-    
-    // 处理成功或失败结果
-    if (option.success) {
-      // TODO: 处理小游戏成功
-      console.log('小游戏成功');
-    } else if (option.fail) {
-      // TODO: 处理小游戏失败
-      console.log('小游戏失败');
+
+    // 将当前章节添加到历史记录中
+    addToStoryHistory(currentChapter);
+
+    // 如果选项触发战斗
+    if (option.battle) {
+      setInBattle(true);
+      setCurrentEnemy(option.battle);
+      setNextChapterId(option.nextIdOnVictory ? option.nextIdOnVictory : null);
+    } 
+    // 如果选项触发宝库选择
+    else if (option.treasury) {
+      setTreasuryOptions(option.treasury);
     }
-    
-    // 查找下一个章节
-    if (option.nextId) {
-      const nextChapter = storyData.chapters.find(
-        chapter => chapter.id === option.nextId
-      );
-      
+    // 否则，跳转到下一个章节
+    else if (option.nextId) {
+      const nextChapter = storyData.chapters.find(c => c.id === option.nextId);
       if (nextChapter) {
         setCurrentChapter(nextChapter);
         
-        // 播放背景音乐
-        if (nextChapter.assets && nextChapter.assets.bgm) {
-          soundManager.playBackgroundMusic(nextChapter.assets.bgm);
+        // 通过WebSocket发送章节更新
+        if (socket) {
+          socket.send(JSON.stringify({
+            type: 'chapterUpdate',
+            data: { chapterId: nextChapter.id }
+          }));
         }
-      } else {
-        console.error('找不到章节:', option.nextId);
       }
     }
-  };
+  }, [currentChapter, player, socket]);
 
-  // 处理游戏加载
-  const handleLoadGame = (chapterId, loadedPlayerStatus) => {
-    setIsLoading(true);
-    
-    // 播放加载音效
-    soundManager.playUISound('select');
-    
-    // 加载玩家状态
-    setPlayerStatus(loadedPlayerStatus);
-    
-    // 加载章节
-    const chapter = storyData.chapters.find(
-      chapter => chapter.id === chapterId
-    );
-    
-    if (chapter) {
-      setCurrentChapter(chapter);
+  // 处理战斗结束
+  const handleBattleEnd = useCallback((result) => {
+    setInBattle(false);
+    setCurrentEnemy(null);
+
+    if (result.victory && nextChapterId) {
+      // 玩家胜利，跳转到胜利章节
+      const victoryChapter = storyData.chapters.find(c => c.id === nextChapterId);
+      if (victoryChapter) {
+        setCurrentChapter(victoryChapter);
+      }
+    } else if (!result.victory && currentChapter.options) {
+      // 玩家失败，寻找失败选项的nextIdOnDefeat
+      const defeatOption = currentChapter.options.find(opt => opt.battle === currentEnemy);
+      if (defeatOption && defeatOption.nextIdOnDefeat) {
+        const defeatChapter = storyData.chapters.find(c => c.id === defeatOption.nextIdOnDefeat);
+        if (defeatChapter) {
+          setCurrentChapter(defeatChapter);
+        }
+      }
+    }
+
+    // 应用战斗结果对玩家的影响
+    if (result.rewards) {
+      const updatedPlayer = applyEffects(player, result.rewards);
       
-      // 播放背景音乐
-      if (chapter.assets && chapter.assets.bgm) {
-        soundManager.playBackgroundMusic(chapter.assets.bgm);
-      } else {
-        soundManager.playBackgroundMusic('main');
+      // 检查是否获得了新技能
+      if (result.newSkills && result.newSkills.length > 0) {
+        updatedPlayer.已解锁技能 = [...updatedPlayer.已解锁技能, ...result.newSkills];
       }
-    } else {
-      console.error('加载游戏时找不到章节:', chapterId);
+      
+      setPlayer(updatedPlayer);
+    }
+  }, [nextChapterId, currentChapter, player, currentEnemy]);
+
+  // 处理宝库选择
+  const handleTreasurySelect = useCallback((selection) => {
+    // 根据选择更新玩家状态
+    if (selection.effect) {
+      const updatedPlayer = applyEffects(player, selection.effect);
+      setPlayer(updatedPlayer);
     }
     
-    setIsLoading(false);
-  };
+    // 关闭宝库界面
+    setTreasuryOptions(null);
+    
+    // 如果有下一章节ID，跳转到该章节
+    if (selection.nextId) {
+      const nextChapter = storyData.chapters.find(c => c.id === selection.nextId);
+      if (nextChapter) {
+        setCurrentChapter(nextChapter);
+      }
+    }
+  }, [player]);
 
-  // 打开/关闭存档界面
-  const toggleSaveLoadScreen = () => {
-    setShowSaveLoadScreen(!showSaveLoadScreen);
-    soundManager.playUISound('click');
-  };
+  // 切换角色面板
+  const toggleCharacterSheet = useCallback(() => {
+    setShowCharacterSheet(!showCharacterSheet);
+    if (!showCharacterSheet) {
+      setShowInventory(false);
+      setShowCultivation(false);
+      setShowSettings(false);
+    }
+  }, [showCharacterSheet]);
 
-  // 打开/关闭修炼界面
-  const toggleCultivation = () => {
+  // 切换物品栏
+  const toggleInventory = useCallback(() => {
+    setShowInventory(!showInventory);
+    if (!showInventory) {
+      setShowCharacterSheet(false);
+      setShowCultivation(false);
+      setShowSettings(false);
+    }
+  }, [showInventory]);
+
+  // 切换修炼面板
+  const toggleCultivation = useCallback(() => {
     setShowCultivation(!showCultivation);
-    soundManager.playUISound('click');
-  };
+    if (!showCultivation) {
+      setShowCharacterSheet(false);
+      setShowInventory(false);
+      setShowSettings(false);
+    }
+  }, [showCultivation]);
 
-  // 处理修炼状态更新
-  const handleCultivationUpdate = (effects) => {
-    setPlayerStatus(prevStatus => {
-      const newStatus = { ...prevStatus };
+  // 切换设置面板
+  const toggleSettings = useCallback(() => {
+    setShowSettings(!showSettings);
+    if (!showSettings) {
+      setShowCharacterSheet(false);
+      setShowInventory(false);
+      setShowCultivation(false);
+    }
+  }, [showSettings]);
+
+  // 更新玩家属性
+  const updatePlayer = useCallback((newAttributes) => {
+    setPlayer(prev => ({
+      ...prev,
+      ...newAttributes
+    }));
+  }, []);
+
+  // 使用道具
+  const useItem = useCallback((itemId) => {
+    const item = player.物品.find(i => i.id === itemId);
+    if (!item) return;
+
+    // 应用道具效果
+    if (item.effects) {
+      const updatedPlayer = applyEffects(player, item.effects);
       
-      // 处理修炼效果
-      Object.entries(effects).forEach(([stat, value]) => {
-        if (newStatus.hasOwnProperty(stat)) {
-          newStatus[stat] += value;
-          
-          // 验证属性值不低于0
-          if (newStatus[stat] < 0) {
-            newStatus[stat] = 0;
-          }
-          
-          // 对于特定属性，确保不超过最大值
-          if (stat === '灵力' && newStatus[stat] > 100) {
-            newStatus[stat] = 100;
-          }
-          if (stat === '道心' && newStatus[stat] > 100) {
-            newStatus[stat] = 100;
-          }
-          if (stat === '体力' && newStatus[stat] > 100) {
-            newStatus[stat] = 100;
-          }
+      // 更新物品数量
+      const updatedItems = updatedPlayer.物品.map(i => {
+        if (i.id === itemId) {
+          return { ...i, count: i.count - 1 };
         }
-      });
+        return i;
+      }).filter(i => i.count > 0);
       
-      return newStatus;
-    });
-  };
+      updatedPlayer.物品 = updatedItems;
+      setPlayer(updatedPlayer);
+    }
+  }, [player]);
 
+  // 计算玩家等级和属性
+  useEffect(() => {
+    // 根据修为计算境界等级
+    const cultivationLevels = calculateLevels(player.修为);
+    
+    // 只有在境界等级变化时才更新
+    if (player.境界.level !== cultivationLevels.level) {
+      setPlayer(prev => ({
+        ...prev,
+        境界: cultivationLevels
+      }));
+    }
+  }, [player.修为, player.境界.level]);
+
+  // 渲染主应用界面
   return (
-    <div className="App water-ink-container">
-      <header className="App-header">
-        <h1 className="water-ink-title">仙侠文字RPG</h1>
-        <SoundControls />
-      </header>
-      <main>
-        {isLoading ? (
-          <div className="loading-container water-ink-text">加载中...</div>
+    <div className="App">
+      <Header 
+        toggleCharacterSheet={toggleCharacterSheet}
+        toggleInventory={toggleInventory}
+        toggleCultivation={toggleCultivation}
+        toggleSettings={toggleSettings}
+      />
+      
+      <div className="main-content">
+        <StatusBar player={player} />
+        
+        {inBattle ? (
+          <BattleScene 
+            enemy={currentEnemy}
+            player={player}
+            onBattleEnd={handleBattleEnd}
+            playerSkills={player.已解锁技能.map(skillId => 
+              skills.find(s => s.id === skillId)
+            ).filter(Boolean)}
+          />
+        ) : treasuryOptions ? (
+          <TreasuryOptions 
+            options={treasuryOptions} 
+            onSelect={handleTreasurySelect} 
+          />
         ) : (
           <>
-            <div className="game-controls">
-              <PlayerStatus status={playerStatus} />
-              <div className="game-buttons">
-                <button 
-                  className="save-load-button ink-button"
-                  onClick={toggleSaveLoadScreen}
-                >
-                  存档/读档
-                </button>
-                <button 
-                  className="cultivation-button ink-button"
-                  onClick={toggleCultivation}
-                >
-                  修炼
-                </button>
-                <button 
-                  className="reset-button ink-button" 
-                  onClick={handleResetGame}
-                >
-                  重新开始
-                </button>
-              </div>
-            </div>
-            
-            {showSaveLoadScreen ? (
-              <SaveLoadScreen 
-                currentChapterId={currentChapter.id}
-                playerStatus={playerStatus}
-                onLoad={handleLoadGame}
-                onClose={() => setShowSaveLoadScreen(false)}
-              />
-            ) : showCultivation ? (
-              <Cultivation 
-                playerStatus={playerStatus} 
-                onStatusUpdate={handleCultivationUpdate} 
-                onClose={() => setShowCultivation(false)} 
-              />
-            ) : (
-              <>
-                <StoryDisplay chapter={currentChapter} />
-                <Options 
-                  options={getCurrentOptions()} 
-                  onSelect={handleOptionSelect}
-                />
-              </>
-            )}
+            <StoryDisplay 
+              title={currentChapter.title}
+              text={currentChapter.text}
+              history={storyHistory}
+            />
+            <OptionsContainer 
+              options={currentChapter.options} 
+              onSelect={handleOptionSelect}
+              player={player}
+            />
           </>
         )}
-      </main>
+      </div>
+      
+      {showCharacterSheet && (
+        <CharacterSheet 
+          player={player} 
+          onClose={toggleCharacterSheet}
+          onUpdate={updatePlayer}
+          totalPoints={getTotalAttributePoints(player)}
+          attributes={getAttributes()}
+        />
+      )}
+      
+      {showInventory && (
+        <Inventory 
+          items={player.物品} 
+          onUseItem={useItem}
+          onClose={toggleInventory}
+        />
+      )}
+      
+      {showCultivation && (
+        <CultivationPanel 
+          player={player}
+          onClose={toggleCultivation}
+          onMeditate={() => {
+            const updatedPlayer = { ...player, 修为: player.修为 + 10, 灵力: Math.min(player.灵力 + 5, 100) };
+            setPlayer(updatedPlayer);
+          }}
+        />
+      )}
+      
+      {showSettings && (
+        <SettingsPanel 
+          onClose={toggleSettings}
+          onReset={() => {
+            // 重置游戏状态
+            setPlayer({
+              体力: 100,
+              灵力: 50,
+              修为: 0,
+              道行: 0,
+              智慧: 10,
+              力量: 10,
+              敏捷: 10,
+              体魄: 10,
+              因果: 0,
+              声望: 0,
+              金钱: 50,
+              物品: initialItems,
+              已解锁技能: [],
+              装备: [],
+              境界: {
+                name: "凡人",
+                level: 0
+              }
+            });
+            setCurrentChapter(storyData.chapters.find(c => c.id === "chapter1"));
+            setStoryHistory([]);
+            setInBattle(false);
+            setCurrentEnemy(null);
+          }}
+        />
+      )}
     </div>
   );
 }
